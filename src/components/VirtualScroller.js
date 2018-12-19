@@ -114,15 +114,15 @@ class VirtualScroller extends React.PureComponent {
     ]);
   }
 
-  // only can scroll to knwon height item
+  // only can scroll to known height item
   scrollToIndex(index) {
     if (this._updater) {
       this._updater.scrollToIndex(index);
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    this._createScrollTracker(nextProps.nearStartProximityRatio, nextProps.nearEndProximityRatio);
+  componentDidUpdate() {
+    this._createScrollTracker(this.props.nearStartProximityRatio, this.props.nearEndProximityRatio);
   }
 
   render() {

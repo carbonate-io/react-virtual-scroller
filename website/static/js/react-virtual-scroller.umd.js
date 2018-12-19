@@ -10,151 +10,11 @@ var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 
 
 
 
-function unwrapExports (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
+
 
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
-
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * 
- */
-
-function makeEmptyFunction(arg) {
-  return function () {
-    return arg;
-  };
-}
-
-/**
- * This function accepts and discards inputs; it has no side effects. This is
- * primarily useful idiomatically for overridable function endpoints which
- * always need to be callable, since JS lacks a null-call idiom ala Cocoa.
- */
-var emptyFunction = function emptyFunction() {};
-
-emptyFunction.thatReturns = makeEmptyFunction;
-emptyFunction.thatReturnsFalse = makeEmptyFunction(false);
-emptyFunction.thatReturnsTrue = makeEmptyFunction(true);
-emptyFunction.thatReturnsNull = makeEmptyFunction(null);
-emptyFunction.thatReturnsThis = function () {
-  return this;
-};
-emptyFunction.thatReturnsArgument = function (arg) {
-  return arg;
-};
-
-var emptyFunction_1 = emptyFunction;
-
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-/**
- * Use invariant() to assert state which your program assumes to be true.
- *
- * Provide sprintf-style format (only %s is supported) and arguments
- * to provide information about what broke and what you were
- * expecting.
- *
- * The invariant message will be stripped in production, but the invariant
- * will remain to ensure logic does not differ in production.
- */
-
-var validateFormat = function validateFormat(format) {};
-
-{
-  validateFormat = function validateFormat(format) {
-    if (format === undefined) {
-      throw new Error('invariant requires an error message argument');
-    }
-  };
-}
-
-function invariant(condition, format, a, b, c, d, e, f) {
-  validateFormat(format);
-
-  if (!condition) {
-    var error;
-    if (format === undefined) {
-      error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
-    } else {
-      var args = [a, b, c, d, e, f];
-      var argIndex = 0;
-      error = new Error(format.replace(/%s/g, function () {
-        return args[argIndex++];
-      }));
-      error.name = 'Invariant Violation';
-    }
-
-    error.framesToPop = 1; // we don't care about invariant's own frame
-    throw error;
-  }
-}
-
-var invariant_1 = invariant;
-
-/**
- * Similar to invariant but only logs a warning if the condition is not met.
- * This can be used to log issues in development environments in critical
- * paths. Removing the logging code for production environments will keep the
- * same logic and follow the same code paths.
- */
-
-var warning = emptyFunction_1;
-
-{
-  var printWarning = function printWarning(format) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    var argIndex = 0;
-    var message = 'Warning: ' + format.replace(/%s/g, function () {
-      return args[argIndex++];
-    });
-    if (typeof console !== 'undefined') {
-      console.error(message);
-    }
-    try {
-      // --- Welcome to debugging React ---
-      // This error was thrown as a convenience so that you can use this stack
-      // to find the callsite that caused this warning to fire.
-      throw new Error(message);
-    } catch (x) {}
-  };
-
-  warning = function warning(condition, format) {
-    if (format === undefined) {
-      throw new Error('`warning(condition, format, ...args)` requires a warning ' + 'message argument');
-    }
-
-    if (format.indexOf('Failed Composite propType: ') === 0) {
-      return; // Ignore CompositeComponent proptype check.
-    }
-
-    if (!condition) {
-      for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
-        args[_key2 - 2] = arguments[_key2];
-      }
-
-      printWarning.apply(undefined, [format].concat(args));
-    }
-  };
-}
-
-var warning_1 = warning;
 
 /*
 object-assign
@@ -257,11 +117,24 @@ var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 
 var ReactPropTypesSecret_1 = ReactPropTypesSecret;
 
+var printWarning$1 = function() {};
+
 {
-  var invariant$1 = invariant_1;
-  var warning$1 = warning_1;
   var ReactPropTypesSecret$1 = ReactPropTypesSecret_1;
   var loggedTypeFailures = {};
+
+  printWarning$1 = function(text) {
+    var message = 'Warning: ' + text;
+    if (typeof console !== 'undefined') {
+      console.error(message);
+    }
+    try {
+      // --- Welcome to debugging React ---
+      // This error was thrown as a convenience so that you can use this stack
+      // to find the callsite that caused this warning to fire.
+      throw new Error(message);
+    } catch (x) {}
+  };
 }
 
 /**
@@ -286,12 +159,29 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
         try {
           // This is intentionally an invariant that gets caught. It's the same
           // behavior as without this statement except with a better message.
-          invariant$1(typeof typeSpecs[typeSpecName] === 'function', '%s: %s type `%s` is invalid; it must be a function, usually from ' + 'the `prop-types` package, but received `%s`.', componentName || 'React class', location, typeSpecName, typeof typeSpecs[typeSpecName]);
+          if (typeof typeSpecs[typeSpecName] !== 'function') {
+            var err = Error(
+              (componentName || 'React class') + ': ' + location + ' type `' + typeSpecName + '` is invalid; ' +
+              'it must be a function, usually from the `prop-types` package, but received `' + typeof typeSpecs[typeSpecName] + '`.'
+            );
+            err.name = 'Invariant Violation';
+            throw err;
+          }
           error = typeSpecs[typeSpecName](values, typeSpecName, componentName, location, null, ReactPropTypesSecret$1);
         } catch (ex) {
           error = ex;
         }
-        warning$1(!error || error instanceof Error, '%s: type specification of %s `%s` is invalid; the type checker ' + 'function must return `null` or an `Error` but returned a %s. ' + 'You may have forgotten to pass an argument to the type checker ' + 'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' + 'shape all require an argument).', componentName || 'React class', location, typeSpecName, typeof error);
+        if (error && !(error instanceof Error)) {
+          printWarning$1(
+            (componentName || 'React class') + ': type specification of ' +
+            location + ' `' + typeSpecName + '` is invalid; the type checker ' +
+            'function must return `null` or an `Error` but returned a ' + typeof error + '. ' +
+            'You may have forgotten to pass an argument to the type checker ' +
+            'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' +
+            'shape all require an argument).'
+          );
+
+        }
         if (error instanceof Error && !(error.message in loggedTypeFailures)) {
           // Only monitor this failure once because there tends to be a lot of the
           // same error.
@@ -299,7 +189,9 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
 
           var stack = getStack ? getStack() : '';
 
-          warning$1(false, 'Failed %s type: %s%s', location, error.message, stack != null ? stack : '');
+          printWarning$1(
+            'Failed ' + location + ' type: ' + error.message + (stack != null ? stack : '')
+          );
         }
       }
     }
@@ -307,6 +199,27 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
 }
 
 var checkPropTypes_1 = checkPropTypes;
+
+var printWarning = function() {};
+
+{
+  printWarning = function(text) {
+    var message = 'Warning: ' + text;
+    if (typeof console !== 'undefined') {
+      console.error(message);
+    }
+    try {
+      // --- Welcome to debugging React ---
+      // This error was thrown as a convenience so that you can use this stack
+      // to find the callsite that caused this warning to fire.
+      throw new Error(message);
+    } catch (x) {}
+  };
+}
+
+function emptyFunctionThatReturnsNull() {
+  return null;
+}
 
 var factoryWithTypeCheckers = function(isValidElement, throwOnDirectAccess) {
   /* global Symbol */
@@ -450,12 +363,13 @@ var factoryWithTypeCheckers = function(isValidElement, throwOnDirectAccess) {
       if (secret !== ReactPropTypesSecret_1) {
         if (throwOnDirectAccess) {
           // New behavior only for users of `prop-types` package
-          invariant_1(
-            false,
+          var err = new Error(
             'Calling PropTypes validators directly is not supported by the `prop-types` package. ' +
             'Use `PropTypes.checkPropTypes()` to call them. ' +
             'Read more at http://fb.me/use-check-prop-types'
           );
+          err.name = 'Invariant Violation';
+          throw err;
         } else if ("development" !== 'production' && typeof console !== 'undefined') {
           // Old behavior for people using React.PropTypes
           var cacheKey = componentName + ':' + propName;
@@ -464,15 +378,12 @@ var factoryWithTypeCheckers = function(isValidElement, throwOnDirectAccess) {
             // Avoid spamming the console because they are often not actionable except for lib authors
             manualPropTypeWarningCount < 3
           ) {
-            warning_1(
-              false,
+            printWarning(
               'You are manually calling a React.PropTypes validation ' +
-              'function for the `%s` prop on `%s`. This is deprecated ' +
+              'function for the `' + propFullName + '` prop on `' + componentName  + '`. This is deprecated ' +
               'and will throw in the standalone `prop-types` package. ' +
               'You may be seeing this warning due to a third-party PropTypes ' +
-              'library. See https://fb.me/react-warning-dont-call-proptypes ' + 'for details.',
-              propFullName,
-              componentName
+              'library. See https://fb.me/react-warning-dont-call-proptypes ' + 'for details.'
             );
             manualPropTypeCallCache[cacheKey] = true;
             manualPropTypeWarningCount++;
@@ -516,7 +427,7 @@ var factoryWithTypeCheckers = function(isValidElement, throwOnDirectAccess) {
   }
 
   function createAnyTypeChecker() {
-    return createChainableTypeChecker(emptyFunction_1.thatReturnsNull);
+    return createChainableTypeChecker(emptyFunctionThatReturnsNull);
   }
 
   function createArrayOfTypeChecker(typeChecker) {
@@ -566,8 +477,8 @@ var factoryWithTypeCheckers = function(isValidElement, throwOnDirectAccess) {
 
   function createEnumTypeChecker(expectedValues) {
     if (!Array.isArray(expectedValues)) {
-      warning_1(false, 'Invalid argument supplied to oneOf, expected an instance of array.');
-      return emptyFunction_1.thatReturnsNull;
+      printWarning('Invalid argument supplied to oneOf, expected an instance of array.');
+      return emptyFunctionThatReturnsNull;
     }
 
     function validate(props, propName, componentName, location, propFullName) {
@@ -609,21 +520,18 @@ var factoryWithTypeCheckers = function(isValidElement, throwOnDirectAccess) {
 
   function createUnionTypeChecker(arrayOfTypeCheckers) {
     if (!Array.isArray(arrayOfTypeCheckers)) {
-      warning_1(false, 'Invalid argument supplied to oneOfType, expected an instance of array.');
-      return emptyFunction_1.thatReturnsNull;
+      printWarning('Invalid argument supplied to oneOfType, expected an instance of array.');
+      return emptyFunctionThatReturnsNull;
     }
 
     for (var i = 0; i < arrayOfTypeCheckers.length; i++) {
       var checker = arrayOfTypeCheckers[i];
       if (typeof checker !== 'function') {
-        warning_1(
-          false,
+        printWarning(
           'Invalid argument supplied to oneOfType. Expected an array of check functions, but ' +
-          'received %s at index %s.',
-          getPostfixForTypeWarning(checker),
-          i
+          'received ' + getPostfixForTypeWarning(checker) + ' at index ' + i + '.'
         );
-        return emptyFunction_1.thatReturnsNull;
+        return emptyFunctionThatReturnsNull;
       }
     }
 
@@ -861,11 +769,77 @@ var propTypes = createCommonjsModule(function (module) {
 }
 });
 
-var lib = createCommonjsModule(function (module, exports) {
-exports.__esModule = true;
-exports.defaultMemoize = defaultMemoize;
-exports.createSelectorCreator = createSelectorCreator;
-exports.createStructuredSelector = createStructuredSelector;
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var toConsumableArray = function (arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  } else {
+    return Array.from(arr);
+  }
+};
+
+// modified from https://github.com/reactjs/reselect/blob/master/src/index.js
 function defaultEqualityCheck(a, b) {
   return a === b;
 }
@@ -910,7 +884,7 @@ function getDependencies(funcs) {
     return typeof dep === 'function';
   })) {
     var dependencyTypes = dependencies.map(function (dep) {
-      return typeof dep;
+      return typeof dep === 'undefined' ? 'undefined' : _typeof(dep);
     }).join(', ');
     throw new Error('Selector creators expect all input-selectors to be functions, ' + ('instead received the following types: [' + dependencyTypes + ']'));
   }
@@ -938,8 +912,8 @@ function createSelectorCreator(memoize) {
       return resultFunc.apply(null, arguments);
     }].concat(memoizeOptions));
 
-    // If a selector is called with the exact same arguments we don't need to traverse our dependencies again.
-    var selector = defaultMemoize(function () {
+    // do not memoize this function
+    var selector = function selector() {
       var params = [];
       var length = dependencies.length;
 
@@ -950,7 +924,7 @@ function createSelectorCreator(memoize) {
 
       // apply arguments instead of spreading for performance.
       return memoizedResultFunc.apply(null, params);
-    });
+    };
 
     selector.resultFunc = resultFunc;
     selector.recomputations = function () {
@@ -963,68 +937,38 @@ function createSelectorCreator(memoize) {
   };
 }
 
-var createSelector = exports.createSelector = createSelectorCreator(defaultMemoize);
-
-function createStructuredSelector(selectors) {
-  var selectorCreator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : createSelector;
-
-  if (typeof selectors !== 'object') {
-    throw new Error('createStructuredSelector expects first argument to be an object ' + ('where each property is a selector, instead received a ' + typeof selectors));
-  }
-  var objectKeys = Object.keys(selectors);
-  return selectorCreator(objectKeys.map(function (key) {
-    return selectors[key];
-  }), function () {
-    for (var _len3 = arguments.length, values = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-      values[_key3] = arguments[_key3];
-    }
-
-    return values.reduce(function (composition, value, index) {
-      composition[objectKeys[index]] = value;
-      return composition;
-    }, {});
-  });
-}
-});
-
-unwrapExports(lib);
-var lib_1 = lib.defaultMemoize;
-var lib_2 = lib.createSelectorCreator;
-var lib_3 = lib.createStructuredSelector;
-var lib_4 = lib.createSelector;
-
-var toConsumableArray = function (arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-    return arr2;
-  } else {
-    return Array.from(arr);
-  }
-};
+var createSelector = createSelectorCreator(defaultMemoize);
 
 function defaultPicker(object) {
   return [object.props, object.state];
 }
 
-function createComputedCreater() {
+function computedCreater(picker) {
   return function (instance) {
     for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       args[_key - 1] = arguments[_key];
     }
 
-    var selector = lib_4.apply(undefined, args);
+    var selector = createSelector.apply(undefined, args);
 
-    var computed = function computed() {
-      var overided = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : instance;
-      return selector.apply(undefined, toConsumableArray(defaultPicker(overided)).concat([overided]));
-    };
+    var computed = void 0;
+    if (picker) {
+      computed = function computed() {
+        var overrided = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : instance;
+        return selector.apply(undefined, toConsumableArray(picker(overrided)).concat([overrided]));
+      };
+    } else {
+      computed = function computed() {
+        var overrided = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : instance;
+        return selector(overrided);
+      };
+    }
 
     return computed;
   };
 }
 
-var recomputed$1 = createComputedCreater(defaultPicker);
+var recomputed$1 = computedCreater(defaultPicker);
 
 /**
  * lodash (Custom Build) <https://lodash.com/>
@@ -2004,9 +1948,14 @@ var Viewport = function () {
       return this.getRect().translateBy(0, Math.ceil(scrollerTop - top));
     }
   }, {
+    key: 'getOffsetTop',
+    value: function getOffsetTop() {
+      return this._offsetTop;
+    }
+  }, {
     key: 'setOffsetTop',
     value: function setOffsetTop(value) {
-      this._offsetTop = value;
+      this._offsetTop = Math.ceil(value);
     }
   }, {
     key: 'getRect',
@@ -2053,6 +2002,19 @@ var Viewport = function () {
       });
     }
   }, {
+    key: 'scrollTo',
+    value: function scrollTo(yPos) {
+      if (this._useWindow) {
+        this._window.scrollTo(0, yPos);
+      } else {
+        this._scroller.scrollTop = yPos;
+      }
+
+      this._programticScrollListeners.forEach(function (listener) {
+        return listener(yPos);
+      });
+    }
+  }, {
     key: 'addRectChangeListener',
     value: function addRectChangeListener(listener) {
       return this._addListener('resize', listener, true);
@@ -2084,6 +2046,10 @@ var Viewport = function () {
   }]);
   return Viewport;
 }();
+
+var requestAnimationFrame = window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (cb) {
+  window.setTimeout(cb, 1000 / 60);
+};
 
 function findAnchor(prevPos, nextPos) {
   var viewportRect = prevPos.getViewportRect();
@@ -2208,8 +2174,8 @@ var Updater = function (_React$PureComponent) {
     _this._update = _this._update.bind(_this);
     _this._notifyPositioning = _this._notifyPositioning.bind(_this);
 
-    _this._scheduleUpdate = createScheduler(_this._update, window.requestAnimationFrame);
-    _this._schedulePositioningNotification = createScheduler(_this._notifyPositioning, window.requestAnimationFrame);
+    _this._scheduleUpdate = createScheduler(_this._update, requestAnimationFrame);
+    _this._schedulePositioningNotification = createScheduler(_this._notifyPositioning, requestAnimationFrame);
     _this._handleScroll = lodash_throttle(_this._scheduleUpdate, 100, { trailing: true });
     return _this;
   }
@@ -2375,6 +2341,17 @@ var Updater = function (_React$PureComponent) {
       }
     }
   }, {
+    key: 'scrollToIndex',
+    value: function scrollToIndex(index) {
+      var _props = this.props,
+          list = _props.list,
+          viewport = _props.viewport;
+
+      var targetItem = list[index];
+      var rects = this._getRectangles();
+      viewport.scrollTo(rects[targetItem.id].getTop() + viewport.getOffsetTop());
+    }
+  }, {
     key: 'getPositioning',
     value: function getPositioning() {
       var _state3 = this.state,
@@ -2395,26 +2372,25 @@ var Updater = function (_React$PureComponent) {
       this._unlistenScroll = this.props.viewport.addScrollListener(this._handleScroll);
       this._postRenderProcessing(true);
     }
+
+    // This will cause a re-render but it's the best we can do
+    // See: https://github.com/facebook/react/issues/12188
+
   }, {
-    key: 'componentWillReceiveProps',
-    value: function componentWillReceiveProps(nextProps) {
-      var prevList = this.props.list;
-      var prevState = this.state;
-      var nextList = nextProps.list;
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate(prevProps, prevState) {
+      var prevList = prevProps.list;
+      var nextList = this.props.list;
       if (prevList !== nextList) {
         var slice = findNewSlice(prevList, nextList, prevState.sliceStart, prevState.sliceEnd) || this._getDefaultSlice(nextList);
         this._setSlice(slice.sliceStart, slice.sliceEnd);
+        this._postRenderProcessing(prevProps.list !== this.props.list);
       }
     }
   }, {
-    key: 'componentWillUpdate',
-    value: function componentWillUpdate() {
+    key: 'getSnapshotBeforeUpdate',
+    value: function getSnapshotBeforeUpdate() {
       this._prevPositioning = this.getPositioning();
-    }
-  }, {
-    key: 'componentDidUpdate',
-    value: function componentDidUpdate(prevProps) {
-      this._postRenderProcessing(prevProps.list !== this.props.list);
     }
   }, {
     key: 'componentWillUnmount',
@@ -2605,12 +2581,18 @@ var VirtualScroller$1 = function (_React$PureComponent) {
     });
     /* eslint-enable no-shadow */
 
+    _this._handleRefUpdate = _this._handleRefUpdate.bind(_this);
     _this._handlePositioningUpdate = _this._handlePositioningUpdate.bind(_this);
     _this._createScrollTracker(props.nearStartProximityRatio, props.nearEndProximityRatio);
     return _this;
   }
 
   createClass(VirtualScroller, [{
+    key: '_handleRefUpdate',
+    value: function _handleRefUpdate(ref) {
+      this._updater = ref;
+    }
+  }, {
     key: '_handlePositioningUpdate',
     value: function _handlePositioningUpdate(position) {
       if (this._scrollTracker) {
@@ -2644,10 +2626,20 @@ var VirtualScroller$1 = function (_React$PureComponent) {
         }
       }]);
     }
+
+    // only can scroll to known height item
+
   }, {
-    key: 'componentWillReceiveProps',
-    value: function componentWillReceiveProps(nextProps) {
-      this._createScrollTracker(nextProps.nearStartProximityRatio, nextProps.nearEndProximityRatio);
+    key: 'scrollToIndex',
+    value: function scrollToIndex(index) {
+      if (this._updater) {
+        this._updater.scrollToIndex(index);
+      }
+    }
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate() {
+      this._createScrollTracker(this.props.nearStartProximityRatio, this.props.nearEndProximityRatio);
     }
   }, {
     key: 'render',
@@ -2659,6 +2651,7 @@ var VirtualScroller$1 = function (_React$PureComponent) {
 
 
       return React.createElement(Updater, {
+        ref: this._handleRefUpdate,
         list: this._getList(),
         renderItem: renderItem,
         assumedItemHeight: assumedItemHeight,

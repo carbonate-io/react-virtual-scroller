@@ -323,24 +323,22 @@ class Updater extends React.PureComponent {
     this._postRenderProcessing(true);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const prevList = this.props.list;
-    const prevState = this.state;
-    const nextList = nextProps.list;
+  // This will cause a re-render but it's the best we can do
+  // See: https://github.com/facebook/react/issues/12188
+  componentDidUpdate(prevProps, prevState) {
+    const prevList = prevProps.list;
+    const nextList = this.props.list;
     if (prevList !== nextList) {
       const slice =
         findNewSlice(prevList, nextList, prevState.sliceStart, prevState.sliceEnd) ||
         this._getDefaultSlice(nextList);
       this._setSlice(slice.sliceStart, slice.sliceEnd);
+      this._postRenderProcessing(prevProps.list !== this.props.list);
     }
   }
 
-  componentWillUpdate() {
+  getSnapshotBeforeUpdate()  {
     this._prevPositioning = this.getPositioning();
-  }
-
-  componentDidUpdate(prevProps) {
-    this._postRenderProcessing(prevProps.list !== this.props.list);
   }
 
   componentWillUnmount() {
