@@ -2391,6 +2391,8 @@ var Updater = function (_React$PureComponent) {
     key: 'getSnapshotBeforeUpdate',
     value: function getSnapshotBeforeUpdate() {
       this._prevPositioning = this.getPositioning();
+
+      return null;
     }
   }, {
     key: 'componentWillUnmount',

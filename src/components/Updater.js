@@ -339,6 +339,8 @@ class Updater extends React.PureComponent {
 
   getSnapshotBeforeUpdate()  {
     this._prevPositioning = this.getPositioning();
+
+    return null;
   }
 
   componentWillUnmount() {
