@@ -1,13 +1,13 @@
 {
-  "name": "@liximomo/react-virtual-scroller",
-  "version": "1.0.0-alpha.3",
+  "name": "@carbonate-io/react-virtual-scroller",
+  "version": "1.0.0-alpha.4",
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
   "module": "es/index.js",
   "browser": "dist/react-virtual-scroller.umd.js",
   "author": "liximomo <liximomo@gmail.com> (https://liximomo.github.io/)",
   "repository": {
-    "url": "git@github.com:liximomo/react-virtual-scroller.git",
+    "url": "git@github.com:carbonate-io/react-virtual-scroller.git",
     "type": "git"
   },
   "license": "MIT",
